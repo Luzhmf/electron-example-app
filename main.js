@@ -1,20 +1,46 @@
 // Modules
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain} = require('electron')
+const windowStateKeeper = require('electron-window-state')
+const readItem = require('./readItem')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
+// listener new-tem
+ipcMain.on('new-item', (e, itemUrl) => {
+  // get new item and send it back
+  readItem( itemUrl, item => {
+    e.sender.send('new-item-success', item)
+  })
+})
+
 // Create a new BrowserWindow when `app` is ready
 function createWindow () {
 
+  // Win state keeper
+  let state = windowStateKeeper({
+    defaultHeight: 500, defaultWidth: 650
+  })
+
   mainWindow = new BrowserWindow({
-    width: 1000, height: 800,
-    webPreferences: { nodeIntegration: true }
+    x: state.x,
+    y: state.y,
+    height: state.height,
+    width: state.width,
+    minWidth: 350, 
+    maxWidth: 650,
+    minHeight: 300,
+    webPreferences: { 
+      nodeIntegration: true 
+    }
   })
 
   // Load index.html into the new BrowserWindow
-  mainWindow.loadFile('index.html')
+  mainWindow.loadFile('renderer/main.html')
+
+  // State windows manage
+  state.manage(mainWindow)
 
   // Open DevTools - Remove for PRODUCTION!
   mainWindow.webContents.openDevTools()
