@@ -22,7 +22,19 @@ let showModal = document.getElementById("show-modal"),
     closeModal = document.getElementById("close-modal"),
     modal = document.getElementById("modal"),
     addItem = document.getElementById("add-item"),
-    itemUrl = document.getElementById("url")
+    itemUrl = document.getElementById("url"),
+    search = document.getElementById("search")
+
+// Filter items
+search.addEventListener('keyup', e => {
+    // Loop items
+
+    Array.from( document.getElementsByClassName('read-item')).forEach(item => {
+
+        let hasMatch = item.innerText.toLowerCase().includes(search.value);
+        item.style.display = hasMatch ? 'flex' : 'none'; 
+    });
+})
 
 // Show modal
 showModal.addEventListener('click', e => {
@@ -63,4 +75,12 @@ ipcRenderer.on('new-item-success', (e, newItem) => {
     //hide modal
     modal.style.display = 'none'
     itemUrl.value = ''
+})
+
+// event to keydown/up
+
+document.addEventListener('keydown', e => {
+    if (e.key === "ArrowUp" || e.key === 'ArrowDown') {
+        items.changeSelection(e.key);
+    }
 })
